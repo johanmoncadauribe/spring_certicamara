@@ -9,11 +9,13 @@ import java.net.URL;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.certicamara.Utils;
 import com.example.certicamara.Dto.GenderDTO;
@@ -36,16 +38,13 @@ public class ControllerGender {
 			if(name.isBlank()||name.isEmpty()||name==null||name.equalsIgnoreCase("null")) {
 				return Utils.respuesta(false, "Nombre incorrecto", null);
 			}
-			
 			StringBuilder response = new StringBuilder();
-			
 			try {
 					modelGender mod=new modelGender();
 					repogenderize.save(mod);
 			}catch(Exception e) {
 				  return Utils.respuesta(false, "Error desconocido", null);
 			}
-				
 			try {
 				URL url = new URL ("https://api.genderize.io?name="+name);
 				HttpURLConnection con = (HttpURLConnection)url.openConnection();
@@ -67,10 +66,10 @@ public class ControllerGender {
 				return Utils.respuesta(true, "succes", gen);
 			}catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
-				return Utils.respuesta(false, "Error en la consulta", null);
+				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cause description here");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				return Utils.respuesta(false, "Error en la consulta", null);
+				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cause description here");
 			}
 		}
 }
