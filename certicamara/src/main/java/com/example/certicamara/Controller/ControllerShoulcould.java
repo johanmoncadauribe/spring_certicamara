@@ -7,10 +7,13 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,7 +49,7 @@ public class ControllerShoulcould {
 					modelShoutcould mod=new modelShoutcould();
 					reposhout.save(mod);
 			}catch(Exception e) {
-				  return Utils.respuesta(false, "Error desconocido", null);
+				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cause description here");
 			}
 				StringBuilder response = new StringBuilder();
 				try {
@@ -57,6 +60,7 @@ public class ControllerShoulcould {
 					con.setRequestProperty("Accept", "application/json");
 					con.setDoOutput(true);
 					con.setDoInput(true);
+					con.setConnectTimeout(5000);
 					String jsonInputString = "{\"INPUT\": \""+shou.getEntrada()+"\"}";
 					try(OutputStream os = con.getOutputStream()) {
 					    byte[] input = jsonInputString.getBytes("utf-8");
@@ -80,6 +84,21 @@ public class ControllerShoulcould {
 					throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cause description here");
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
+					throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cause description here");
+				}
+			}
+			
+			//obtener todos los registros
+			@GetMapping(path="/totalConsumosShould")
+			public @ResponseBody Map<String,Object> getConsumos(){
+				List <modelShoutcould> model=new ArrayList<modelShoutcould>();
+				try {
+					model=reposhout.findAll();
+					if(model.size()==0) {
+						return Utils.respuesta(false, "No existen registros", null);
+					}
+					return Utils.respuesta(true,"Consumos: "+model.size(), model);
+				}catch(Exception e) {
 					throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cause description here");
 				}
 			}

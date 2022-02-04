@@ -9,7 +9,7 @@ public class Utils {
         Map<String, Object> respuesta = new HashMap<>();
         respuesta.put("mensaje", mensaje);
         respuesta.put("info", info);
-        respuesta.put("estado", estado);
+        respuesta.put("status", estado);
         return respuesta;
     }
 

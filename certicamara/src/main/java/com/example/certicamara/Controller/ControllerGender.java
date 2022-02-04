@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,13 +45,14 @@ public class ControllerGender {
 					modelGender mod=new modelGender();
 					repogenderize.save(mod);
 			}catch(Exception e) {
-				  return Utils.respuesta(false, "Error desconocido", null);
+				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cause description here");
 			}
 			try {
 				URL url = new URL ("https://api.genderize.io?name="+name);
 				HttpURLConnection con = (HttpURLConnection)url.openConnection();
 				con.getRequestMethod();
 				con.setRequestProperty("Accept", "application/json");
+				con.setConnectTimeout(5000);
 				try(BufferedReader br = new BufferedReader(
 						  new InputStreamReader(con.getInputStream(), "utf-8"))) {
 						    String responseLine = null;
@@ -69,6 +72,21 @@ public class ControllerGender {
 				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cause description here");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
+				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cause description here");
+			}
+		}
+		
+		//obtener todos los registros
+		@GetMapping(path="/totalConsumosGender")
+		public @ResponseBody Map<String,Object> getConsumos(){
+			List <modelGender> model=new ArrayList<modelGender>();
+			try {
+				model=repogenderize.findAll();
+				if(model.size()==0) {
+					return Utils.respuesta(false, "No existen registros", null);
+				}
+				return Utils.respuesta(true,"Consumos: "+model.size(), model);
+			}catch(Exception e) {
 				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cause description here");
 			}
 		}
